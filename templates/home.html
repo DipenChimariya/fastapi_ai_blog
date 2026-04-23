@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div class="mb-8">
+        <h2 class="text-3xl font-extrabold tracking-tight">Recent Posts</h2>
+        <p class="text-slate-500">Welcome to my 60-day backend journey.</p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+        {% for post in posts %}
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+            <h3 class="text-xl font-bold mb-2">{{ post.title }}</h3>
+            <p class="text-slate-600 mb-4">{{ post.content }}</p>
+            <div class="flex items-center text-sm text-slate-400">
+                <span>By {{ post.author }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
