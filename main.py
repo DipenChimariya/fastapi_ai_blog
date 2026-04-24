@@ -1,14 +1,15 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 
+app = FastAPI(title="FastAPI AI Blog")
+templates = Jinja2Templates(directory="templates")
 
-app=FastAPI(title="fastapi ai blog")
-templates=Jinja2Templates(directory="templates")
-
-posts: list[dict] = [
+# Mock Database
+posts = [
     {
         "id": 1,
         "author": "Dipen Chimariya",
+        "category": "Backend",
         "title": "FastAPI is really fast",
         "content": "Learning to build using FastAPI",
         "date_posted": "24 april, 2026",
@@ -16,17 +17,18 @@ posts: list[dict] = [
     {
         "id": 2,
         "author": "abcd efgh",
+        "category": "Random",
         "title": "Dummy data",
         "content": "Real Database is coming soon in DAY 5",
         "date_posted": "24 april, 2026",
     },
 ]
 
-@app.get("/",include_in_schema=False)
-@app.get("/posts",include_in_schema=False)
-def home(request:Request):
+@app.get("/",include_in_schema=False,name="home")
+@app.get("/posts",include_in_schema=False,name="posts")
+async def home(request:Request):
     return templates.TemplateResponse(request=request,name="home.html",context={"posts":posts,"title":"home"})
 
 @app.get("/post/api")
-def get_posts():
+async def get_posts():
     return posts
