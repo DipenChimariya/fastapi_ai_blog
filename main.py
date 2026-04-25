@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request,HTTPException,status
 from fastapi.templating import Jinja2Templates
 
 app = FastAPI(title="FastAPI AI Blog")
@@ -32,3 +32,23 @@ async def home(request:Request):
 @app.get("/post/api")
 async def get_posts():
     return posts
+
+
+@app.get("/post/{post_id}", name="post_detail")
+async def post_detail(request: Request, post_id: int):
+    current_post = None
+    for post in posts:
+        if post.get("id") == post_id:
+            current_post = post
+            break
+            
+    if current_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Post not found"
+        )
+    
+    return templates.TemplateResponse(request=request,name="post.html",context={"post":current_post}
+    )
+
+    
