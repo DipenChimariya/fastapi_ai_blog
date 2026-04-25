@@ -51,4 +51,16 @@ async def post_detail(request: Request, post_id: int):
     return templates.TemplateResponse(request=request,name="post.html",context={"post":current_post}
     )
 
+
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    return templates.TemplateResponse(
+        request=request,
+        name="error.html",
+        context={
+            "status_code": exc.status_code,
+            "message": exc.detail
+        },
+        status_code=exc.status_code
+    )
     
