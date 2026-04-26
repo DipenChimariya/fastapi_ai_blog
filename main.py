@@ -1,5 +1,8 @@
 from fastapi import FastAPI, Request,HTTPException,status
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.exceptions import RequestValidationError
 
 app = FastAPI(title="FastAPI AI Blog")
 templates = Jinja2Templates(directory="templates")
@@ -52,15 +55,49 @@ async def post_detail(request: Request, post_id: int):
     )
 
 
-@app.exception_handler(HTTPException)
-async def custom_http_exception_handler(request: Request, exc: HTTPException):
+
+
+@app.exception_handler(StarletteHTTPException)
+async def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
+    message = (
+        exception.detail
+        if exception.detail
+        else "An error occurred. Please check your request and try again."
+    )
+
+    if request.url.path.startswith("/api"):
+        return JSONResponse(
+            status_code=exception.status_code,
+            content={"detail": message},
+        )
+    
+   
     return templates.TemplateResponse(
         request=request,
         name="error.html",
         context={
-            "status_code": exc.status_code,
-            "message": exc.detail
+            "status_code": exception.status_code,
+            "message": message,
         },
-        status_code=exc.status_code
+        status_code=exception.status_code,
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exception: RequestValidationError):
+    if request.url.path.startswith("/api"):
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            content={"detail": exception.errors()},
+        )
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="error.html",
+        context={
+            "status_code": 422,
+            "message": "Invalid request. Please check your input and try again.",
+        },
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )
     
