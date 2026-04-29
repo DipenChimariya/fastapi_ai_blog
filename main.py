@@ -10,7 +10,7 @@ from datetime import datetime
 app = FastAPI(title="FastAPI AI Blog")
 templates = Jinja2Templates(directory="templates")
 
-# --- 1. Pydantic Schemas ---
+
 
 class PostBase(BaseModel):
     """Common fields for all Post models"""
@@ -26,11 +26,11 @@ class PostCreate(PostBase):
 class Post(PostBase):
     """The full Post schema (as stored in our 'database')"""
     id: int
-    date_posted: str  # Keeping as string to match your existing mock data
+    date_posted: str  
 
-# --- 2. Refactored Mock Database ---
 
-# We now use the 'Post' class to ensure data integrity
+
+
 posts: List[Post] = [
     Post(
         id=1,
@@ -50,7 +50,7 @@ posts: List[Post] = [
     ),
 ]
 
-# --- 3. Routes ---
+
 
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/posts", include_in_schema=False, name="posts")
@@ -68,7 +68,7 @@ async def get_posts_api():
 
 @app.get("/post/{post_id}", name="post_detail")
 async def post_detail(request: Request, post_id: int):
-    # Search logic using Pydantic object attributes
+    
     current_post = next((p for p in posts if p.id == post_id), None)
             
     if current_post is None:
@@ -83,7 +83,7 @@ async def post_detail(request: Request, post_id: int):
         context={"post": current_post}
     )
 
-# --- 4. Exception Handlers ---
+
 
 @app.exception_handler(StarletteHTTPException)
 async def general_http_exception_handler(request: Request, exception: StarletteHTTPException):
